@@ -1,0 +1,43 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  namespace: rabbitmq
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  persistence:
+    storage: 0
+  # If we're in an IPv6-capable environment, uncomment this:
+  # service:
+  #     ipFamilyPolicy: "PreferDualStack"
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_tracing
+      # https://www.rabbitmq.com/docs/firehose
+      # https://github.com/rabbitmq/rabbitmq-server/tree/main/deps/rabbitmq_tracing
+    additionalConfig: |
+      log.console = true
+      log.console.level = debug
+      log.console.formatter = json
+      log.console.formatter.json.field_map = verbosity:v time msg domain file line pid level:-
+      log.console.formatter.json.verbosity_map = debug:7 info:6 notice:5 warning:4 error:3 critical:2 alert:1 emergency:0
+      log.console.formatter.time_format = rfc3339_T
+      cluster_formation.peer_discovery_backend = kubernetes
+      cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+      cluster_partition_handling = pause_minority
+      collect_statistics_interval = 10000
+    # If we're in an IPv6-capable environment, uncomment these:
+    # erlangInetConfig: |
+    #   {inet6, true}.
+    # envConfig: |
+    #   SERVER_ADDITIONAL_ERL_ARGS="-kernel inetrc '/etc/rabbitmq/erl_inetrc'  -proto_dist inet6_tcp"
+    #   RABBITMQ_CTL_ERL_ARGS="-proto_dist inet6_tcp"

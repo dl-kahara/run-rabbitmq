@@ -1,0 +1,18 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  namespace: rabbitmq
+  name: rabbitmq-subscription
+spec:
+  channel: stable
+  name: rabbitmq-cluster-operator
+  source: operatorhubio-catalog
+  sourceNamespace: olm
+  installPlanApproval: Automatic
+  # Could start with an older version, then assessing how upgrading works
+  # in practice with the operator. This would require equivalent of
+  # "kubectl edit installplan -n rabbitmq ..." and change of "spec.approved"
+  # to "true", for installation to be able to proceed:
+  #
+  # installPlanApproval: Manual
+  # startingCSV: rabbitmq-cluster-operator.v2.9.0
